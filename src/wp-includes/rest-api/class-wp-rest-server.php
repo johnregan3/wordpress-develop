@@ -1238,7 +1238,11 @@ class WP_REST_Server {
 		 * about supported authentication schemes, supported namespaces, routes
 		 * available on the API, and a small amount of data about the site.
 		 *
+		 * Additionally, the Request is included so the Response can be modified
+		 * based on input provided by the client.
+		 *
 		 * @since 4.4.0
+		 * @since 6.0.0 New Request param added.
 		 *
 		 * @param WP_REST_Response $response Response data.
 		 * @param WP_REST_Request  $request  Request data.
