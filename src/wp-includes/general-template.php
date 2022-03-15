@@ -43,7 +43,12 @@ function get_header( $name = null, $args = array() ) {
 		$templates[] = "header-{$name}.php";
 	}
 
-	$templates[] = 'header.php';
+	if ( wp_is_block_theme() ) {
+		do_action( 'wp_head' );
+		block_header_area();
+	} else {
+		$templates[] = 'header.php';
+	}
 
 	if ( ! locate_template( $templates, true, true, $args ) ) {
 		return false;
@@ -87,7 +92,12 @@ function get_footer( $name = null, $args = array() ) {
 		$templates[] = "footer-{$name}.php";
 	}
 
-	$templates[] = 'footer.php';
+	if ( wp_is_block_theme() ) {
+		do_action( 'wp_footer' );
+		block_footer_area();
+	} else {
+		$templates[] = 'footer.php';
+	}
 
 	if ( ! locate_template( $templates, true, true, $args ) ) {
 		return false;
