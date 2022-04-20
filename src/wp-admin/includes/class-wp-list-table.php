@@ -1392,10 +1392,25 @@ class WP_List_Table {
 	}
 
 	/**
-	 * @param object|array $item
-	 * @param string $column_name
+	 * Handles the default column output.
+	 *
+	 * @param object|array $item        The current item.
+	 * @param string       $column_name The column name.
 	 */
-	protected function column_default( $item, $column_name ) {}
+	protected function column_default( $item, $column_name ) {
+		/**
+		 * Fires for each registered custom screen column.
+		 *
+		 * The dynamic portion of the hook name, `$this->screen->id`, refers
+		 * to the ID of the current screen.
+		 *
+		 * @since 6.0.0
+		 *
+		 * @param string       $column_name Name of the custom column.
+		 * @param object|array $item        The current item.
+		 */
+		do_action( "manage_{$this->screen->id}_custom_column", $column_name, $item );
+	}
 
 	/**
 	 * @param object|array $item
