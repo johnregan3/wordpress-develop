@@ -104,4 +104,34 @@ class Tests_Query_ParseQuery extends WP_UnitTestCase {
 		$this->assertSame( '404', $q->query_vars['error'] );
 	}
 
+	/**
+	 * @ticket 17737
+	 */
+	public function test_parse_query_author_array() {
+		$q = new WP_Query();
+		$q->parse_query(
+			array(
+				'author' => array(1,2,3),
+			)
+		);
+
+		//$this->assertSame( '404', $q->query_vars['error'] );
+		$this->assertSame( array(), $q->posts );
+	}
+
+	/**
+	 * @ticket 17737
+	 */
+	public function test_parse_query_author_array_works() {
+		$q = new WP_Query();
+		$q->parse_query(
+			array(
+				'author' => array(1),
+			)
+		);
+
+		//$this->assertSame( '404', $q->query_vars['error'] );
+		$this->assertSame( array(), $q->posts );
+	}
+
 }
