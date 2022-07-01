@@ -806,15 +806,26 @@ class WP_Query {
 		$qv['title']    = is_scalar( $qv['title'] ) ? trim( $qv['title'] ) : '';
 		if ( is_scalar( $qv['hour'] ) && '' !== $qv['hour'] ) {
 			$qv['hour'] = absint( $qv['hour'] );
+		} else {
+			$qv['hour'] = '';
 		}
+
 		if ( is_scalar( $qv['minute'] ) && '' !== $qv['minute'] ) {
 			$qv['minute'] = absint( $qv['minute'] );
+		} else {
+			$qv['minute'] = '';
 		}
+
 		if ( is_scalar( $qv['second'] ) && '' !== $qv['second'] ) {
 			$qv['second'] = absint( $qv['second'] );
+		} else {
+			$qv['second'] = '';
 		}
+
 		if ( is_scalar( $qv['menu_order'] ) && '' !== $qv['menu_order'] ) {
 			$qv['menu_order'] = absint( $qv['menu_order'] );
+		} else {
+			$qv['menu_order'] = '';
 		}
 
 		// Fairly large, potentially too large, upper bound for search string lengths.
