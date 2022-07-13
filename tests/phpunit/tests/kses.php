@@ -1120,6 +1120,51 @@ EOF;
 				'css'      => 'color: rgb( 100, 100, 100, .4 )',
 				'expected' => '',
 			),
+			// Allow min().
+			array(
+				'width: min(50%, 400px)',
+				'width: min(50%, 400px)',
+			),
+			// Allow max().
+			array(
+				'width: max(50%, 40rem)',
+				'width: max(50%, 40rem)',
+			),
+			// Allow calc().
+			array(
+				'width: calc(2em + 3px)',
+				'width: calc(2em + 3px)',
+			),
+			// Allow var().
+			array(
+				'padding: var(--wp-var1) var(--wp-var2)',
+				'padding: var(--wp-var1) var(--wp-var2)',
+			),
+			// Allow calc() with var().
+			array(
+				'margin-top: calc(var(--wp-var1) * 3 + 2em)',
+				'margin-top: calc(var(--wp-var1) * 3 + 2em)',
+			),
+			// Malformed min, no closing `)`.
+			array(
+				'width: min(3em + 10px',
+				'',
+			),
+			// Malformed max, no closing `)`.
+			array(
+				'width: max(3em + 10px',
+				'',
+			),
+			// Malformed calc, no closing `)`.
+			array(
+				'width: calc(3em + 10px',
+				'',
+			),
+			// Malformed var, no closing `)`.
+			array(
+				'width: var(--wp-var1',
+				'',
+			),
 		);
 	}
 
@@ -1301,36 +1346,6 @@ EOF;
 				'background: red',
 			),
 
-			// CSS calc().
-			array(
-				'width: calc(2em + 3px)',
-				'width: calc(2em + 3px)',
-			),
-
-			// CSS min().
-			array(
-				'width: min(50%, 400px)',
-				'width: min(50%, 400px)',
-			),
-
-			// CSS min().
-			array(
-				'width: max(50%, 40rem)',
-				'width: max(50%, 40rem)',
-			),
-
-			// CSS variable.
-			array(
-				'padding: var(--wp-var1) var(--wp-var2)',
-				'padding: var(--wp-var1) var(--wp-var2)',
-			),
-
-			// CSS calc() with var().
-			array(
-				'margin-top: calc(var(--wp-var1) * 3 + 2em)',
-				'margin-top: calc(var(--wp-var1) * 3 + 2em)',
-			),
-
 			/*
 			 * Invalid use cases.
 			 */
@@ -1392,18 +1407,6 @@ EOF;
 			// Malformed, no closing `"`.
 			array(
 				'background-image: url( "http://example.com );',
-				'',
-			),
-
-			// Malformed calc, no closing `)`.
-			array(
-				'width: calc(3em + 10px',
-				'',
-			),
-
-			// Malformed var, no closing `)`.
-			array(
-				'width: var(--wp-var1',
 				'',
 			),
 		);
