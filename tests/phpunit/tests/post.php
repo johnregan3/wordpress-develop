@@ -1220,6 +1220,26 @@ class Tests_Post extends WP_UnitTestCase {
 		$this->assertSame( $post['post_date_gmt'], $out->post_date_gmt );
 	}
 
+	/**
+	 * @ticket 26798
+	 */
+	public function test_wp_insert_post_malformed_post_date() {
+		$post = array(
+			'post_author'   => self::$editor_id,
+			'post_status'   => 'publish',
+			'post_content'  => 'content',
+			'post_title'    => 'title',
+			'post_date'     => '2012-01-8 12:00:00',
+		);
+
+		// Insert a post and make sure the ID is OK.
+		$id = wp_insert_post( $post );
+
+		$out = get_post( $id );
+
+		$this->assertEquals( $post['post_status'], $out->post_status );
+	}
+
 	public function test_wp_delete_post_reassign_hierarchical_post_type() {
 		$grandparent_page_id = self::factory()->post->create( array( 'post_type' => 'page' ) );
 		$parent_page_id      = self::factory()->post->create(
