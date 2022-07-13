@@ -1130,6 +1130,21 @@ EOF;
 				'width: max(50%, 40rem)',
 				'width: max(50%, 40rem)',
 			),
+			// Allow minmax().
+			array(
+				'width: minmax(100px, 50%)',
+				'width: minmax(100px, 50%)',
+			),
+			// Allow clamp().
+			array(
+				'width: clamp(100px, 50%, 100vw)',
+				'width: clamp(100px, 50%, 100vw)',
+			),
+			// Combined CSS function names.
+			array(
+				'width: calcmax(100px + 50%)',
+				'',
+			),
 			// Allow calc().
 			array(
 				'width: calc(2em + 3px)',
@@ -1153,6 +1168,11 @@ EOF;
 			// Malformed max, no closing `)`.
 			array(
 				'width: max(3em + 10px',
+				'',
+			),
+			// Malformed minmax, no closing `)`.
+			array(
+				'width: minmax(3em + 10px',
 				'',
 			),
 			// Malformed calc, no closing `)`.
@@ -1271,6 +1291,7 @@ EOF;
 	 * @ticket 45067
 	 * @ticket 46197
 	 * @ticket 46498
+	 * @ticket 55966
 	 *
 	 * @param $input string The style attribute saved in the editor.
 	 * @param $expected string The sanitized style attribute.

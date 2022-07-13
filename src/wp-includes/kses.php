@@ -2467,8 +2467,9 @@ function safecss_filter_attr( $css, $deprecated = '' ) {
 		}
 
 		if ( $found ) {
-			// Allow CSS calc(), min(), and max().
-			$css_test_string = preg_replace( '/(?:calc|min|max)\(((?:\([^()]*\)?|[^()])*)\)/', '', $css_test_string );
+			// Allow some CSS functions.
+			$css_test_string = preg_replace( '/\b(?:calc|min|max|minmax|clamp)\(((?:\([^()]*\)?|[^()])*)\)/', '', $css_test_string );
+
 			// Allow CSS var().
 			$css_test_string = preg_replace( '/\(?var\(--[a-zA-Z0-9_-]*\)/', '', $css_test_string );
 
