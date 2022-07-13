@@ -1307,6 +1307,18 @@ EOF;
 				'width: calc(2em + 3px)',
 			),
 
+			// CSS min().
+			array(
+				'width: min(50%, 400px)',
+				'width: min(50%, 400px)',
+			),
+
+			// CSS min().
+			array(
+				'width: max(50%, 40rem)',
+				'width: max(50%, 40rem)',
+			),
+
 			// CSS variable.
 			array(
 				'padding: var(--wp-var1) var(--wp-var2)',
