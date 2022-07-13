@@ -1222,8 +1222,10 @@ class Tests_Post extends WP_UnitTestCase {
 
 	/**
 	 * @ticket 26798
+	 *
+	 * On a deeper level, this is handled by test_wp_resolve_post_date.
 	 */
-	public function test_wp_insert_post_malformed_post_date() {
+	public function test_wp_insert_post_reject_malformed_post_date() {
 		$post = array(
 			'post_author'   => self::$editor_id,
 			'post_status'   => 'publish',
@@ -1232,12 +1234,9 @@ class Tests_Post extends WP_UnitTestCase {
 			'post_date'     => '2012-01-8 12:00:00',
 		);
 
-		// Insert a post and make sure the ID is OK.
+		// Inserting the post should fail gracefully.
 		$id = wp_insert_post( $post );
-
-		$out = get_post( $id );
-
-		$this->assertEquals( $post['post_status'], $out->post_status );
+		$this->assertSame( 0, $id );
 	}
 
 	public function test_wp_delete_post_reassign_hierarchical_post_type() {
@@ -1657,6 +1656,33 @@ class Tests_Post extends WP_UnitTestCase {
 
 		$resolved_post_date = wp_resolve_post_date( $invalid_date, $invalid_date );
 		$this->assertFalse( $resolved_post_date );
+	}
+
+	/**
+	 * @ticket 26798
+	 *
+	 * Tests the regex inside of wp_resolve_post_date().
+	 */
+	public function test_wp_resolve_post_date_regex() {
+		$invalid_dates = array(
+			'2012-01-08',
+			'201-01-08 00:00:00',
+			'201a-01-08 00:00:00',
+			'2012-1-08 00:00:00',
+			'2012-31-08 00:00:00',
+			'2012-01-8 00:00:00',
+			'2012-01-48 00:00:00',
+			'2012-01-08 0:00:00',
+			'2012-01-08 24:00:00',
+			'2012-01-08 00:0:00',
+			'2012-01-08 00:60:00',
+			'2012-01-08 00:00:0',
+			'2012-01-08 00:00:60',
+		);
+		foreach( $invalid_dates as $date ) {
+			$out = wp_resolve_post_date( $date );
+			$this->assertFalse( $out );
+		}
 	}
 
 	/**

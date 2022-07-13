@@ -4912,16 +4912,18 @@ function wp_resolve_post_date( $post_date = '', $post_date_gmt = '' ) {
 		}
 	}
 
-	// Validate the date.
-	$month = substr( $post_date, 5, 2 );
-	$day   = substr( $post_date, 8, 2 );
-	$year  = substr( $post_date, 0, 4 );
+	// Ensure we have a valid mysql date-formatted string (YYYY-MM-DD H:i:s).
+	preg_match( "/^([0-9]{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])[\s](?:[0-1][0-9]|2[1-3]):[0-5][0-9]:[0-5][0-9]$/", $post_date, $matches );
+	if ( empty( $matches ) || ! is_array( $matches ) || count( $matches ) < 4 ) {
+		return false;
+	}
 
-	$valid_date = wp_checkdate( $month, $day, $year, $post_date );
+	$valid_date = wp_checkdate( $matches[2], $matches[3], $matches[1], $post_date );
 
 	if ( ! $valid_date ) {
 		return false;
 	}
+
 	return $post_date;
 }
 
