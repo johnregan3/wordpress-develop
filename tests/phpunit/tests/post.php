@@ -1220,25 +1220,6 @@ class Tests_Post extends WP_UnitTestCase {
 		$this->assertSame( $post['post_date_gmt'], $out->post_date_gmt );
 	}
 
-	/**
-	 * @ticket 26798
-	 *
-	 * On a deeper level, this is handled by test_wp_resolve_post_date.
-	 */
-	public function test_wp_insert_post_reject_malformed_post_date() {
-		$post = array(
-			'post_author'   => self::$editor_id,
-			'post_status'   => 'publish',
-			'post_content'  => 'content',
-			'post_title'    => 'title',
-			'post_date'     => '2012-01-8',
-		);
-
-		// Inserting the post should fail gracefully.
-		$id = wp_insert_post( $post );
-		$this->assertSame( 0, $id );
-	}
-
 	public function test_wp_delete_post_reassign_hierarchical_post_type() {
 		$grandparent_page_id = self::factory()->post->create( array( 'post_type' => 'page' ) );
 		$parent_page_id      = self::factory()->post->create(
@@ -1562,7 +1543,7 @@ class Tests_Post extends WP_UnitTestCase {
 	/**
 	 * @ticket 52187
 	 */
-	public function test_insert_invalid_post_date() {
+	public function test_insert_invalid_post_date_with_gmt() {
 		$post_date     = '2020-12-28 11:26:35';
 		$post_date_gmt = '2020-12-29 10:11:45';
 		$invalid_date  = '2020-12-41 14:15:27';
@@ -1623,9 +1604,132 @@ class Tests_Post extends WP_UnitTestCase {
 	}
 
 	/**
+	 * @ticket 26798
+	 *
+	 * @dataProvider data_wp_insert_post_handle_malformed_post_date
+	 *
+	 * The purpose of this test is to ensure that invalid dates do not
+	 * cause PHP errors when wp_insert_post() is called, and that the
+	 * posts are not actually "inserted" (created).
+	 */
+	public function test_wp_insert_post_handle_malformed_post_date( $input, $expected ) {
+		$post = array(
+			'post_author'  => self::$editor_id,
+			'post_status'  => 'publish',
+			'post_content' => 'content',
+			'post_title'   => 'title',
+			'post_date'    => $input,
+		);
+
+		// Inserting the post should fail gracefully.
+		$id = wp_insert_post( $post );
+
+		// Check if the result is "0" or not.
+		$result = ! empty( $id );
+		$this->assertEquals( $result, $expected );
+	}
+
+	/**
+	 * @ticket 26798
+	 */
+	public function data_wp_insert_post_handle_malformed_post_date() {
+		return array(
+			array(
+				'2012-01-01',
+				true,
+			),
+			// 24-hour time format.
+			array(
+				'2012-01-01 13:00:00',
+				true,
+			),
+			// ISO8601 date with timezone.
+			array(
+				'2016-01-16T00:00:00Z',
+				true,
+			),
+			// ISO8601 date with timezone offset.
+			array(
+				'2016-01-16T00:00:00+0100',
+				true,
+			),
+			// RFC3339 Format.
+			array(
+				'1970-01-01T01:00:00+01:00',
+				true,
+			),
+			// RSS Format
+			array(
+				'1970-01-01T01:00:00+0100',
+				true,
+			),
+			// Leap year.
+			array(
+				'2012-02-29',
+				true,
+			),
+			// Strange formats.
+			array(
+				'2012-01-01 0',
+				true,
+			),
+			array(
+				'2012-01-01 25:00:00',
+				true,
+			),
+			array(
+				'2012-01-01 00:60:00',
+				true,
+			),
+			// Failures.
+			array(
+				'2012-08-0z',
+				false,
+			),
+			array(
+				'2012-08-1',
+				false,
+			),
+			array(
+				'201-01-08 00:00:00',
+				false,
+			),
+			array(
+				'201-01-08 00:60:00',
+				false,
+			),
+			array(
+				'201a-01-08 00:00:00',
+				false,
+			),
+			array(
+				'2012-1-08 00:00:00',
+				false,
+			),
+			array(
+				'2012-31-08 00:00:00',
+				false,
+			),
+			array(
+				'2012-01-8 00:00:00',
+				false,
+			),
+			array(
+				'2012-01-48 00:00:00',
+				false,
+			),
+			// Not a leap year.
+			array(
+				'2011-02-29',
+				false,
+			),
+		);
+	}
+
+	/**
 	 * @ticket 52187
 	 */
-	public function test_wp_resolve_post_date() {
+	public function test_wp_resolve_post_date_with_gmt() {
 		$post_date     = '2020-12-28 11:26:35';
 		$post_date_gmt = '2020-12-29 10:11:45';
 		$invalid_date  = '2020-12-41 14:15:27';
@@ -1663,13 +1767,17 @@ class Tests_Post extends WP_UnitTestCase {
 	 *
 	 * @dataProvider data_wp_resolve_post_date_regex
 	 *
-	 * Tests the regex inside of wp_resolve_post_date().
+	 * Tests the regex inside of wp_resolve_post_date(), with
+	 * the emphasis on the date format (not the time).
 	 */
 	public function test_wp_resolve_post_date_regex( $date, $expected ) {
 		$out = wp_resolve_post_date( $date );
 		$this->assertEquals( $out, $expected );
 	}
 
+	/**
+	 * @ticket 26798
+	 */
 	public function data_wp_resolve_post_date_regex() {
 		return array(
 			array(
@@ -1680,59 +1788,80 @@ class Tests_Post extends WP_UnitTestCase {
 				'2012-01-01 00:00:00',
 				'2012-01-01 00:00:00',
 			),
+			// ISO8601 date with timezone.
 			array(
 				'2016-01-16T00:00:00Z',
 				'2016-01-16T00:00:00Z',
+			),
+			// ISO8601 date with timezone offset.
+			array(
+				'2016-01-16T00:00:00+0100',
+				'2016-01-16T00:00:00+0100',
+			),
+			// RFC3339 Format.
+			array(
+				'1970-01-01T01:00:00+01:00',
+				'1970-01-01T01:00:00+01:00',
+			),
+			// RSS Format
+			array(
+				'1970-01-01T01:00:00+0100',
+				'1970-01-01T01:00:00+0100',
+			),
+			// 24-hour time format.
+			array(
+				'2012-01-01 13:00:00',
+				'2012-01-01 13:00:00',
 			),
 			array(
 				'2016-01-16T00:0',
-				false,
+				'2016-01-16T00:0',
 			),
 			array(
 				'2012-01-01 0',
-				false,
+				'2012-01-01 0',
 			),
 			array(
 				'2012-01-01 00:00',
-				false,
+				'2012-01-01 00:00',
 			),
 			array(
 				'2012-01-01 25:00:00',
-				false,
+				'2012-01-01 25:00:00',
 			),
 			array(
 				'2012-01-01 00:60:00',
-				false,
+				'2012-01-01 00:60:00',
 			),
 			array(
 				'2012-01-01 00:00:60',
+				'2012-01-01 00:00:60',
+			),
+			array(
+				'201-01-08',
 				false,
 			),
 			array(
-				'201-01-08 00:00:00',
+				'201a-01-08',
 				false,
 			),
 			array(
-				'201a-01-08 00:00:00',
+				'2012-1-08',
 				false,
 			),
 			array(
-				'2012-1-08 00:00:00',
+				'2012-31-08',
 				false,
 			),
 			array(
-				'2012-31-08 00:00:00',
-				false,
-			),
-			array(
-				'2012-01-8 00:00:00',
+				'2012-01-8',
 				false,
 			),
 			array(
 				'2012-01-48 00:00:00',
 				false,
 			),
-			// Ensure leap years are handled correctly.
+			// Leap year.
 			array(
 				'2012-02-29',
 				'2012-02-29',

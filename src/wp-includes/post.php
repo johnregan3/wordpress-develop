@@ -4912,13 +4912,7 @@ function wp_resolve_post_date( $post_date = '', $post_date_gmt = '' ) {
 		}
 	}
 
-	// Ensure we have a valid mysql-formatted date string (YYYY-MM-DD).
-	if ( 10 === strlen( $post_date ) ) {
-		preg_match( "/^([0-9]{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])/", $post_date, $matches );
-	} else {
-		// Validate any other attempts at the (YYYY-MM-DD H:i:s) or ISO formats.
-		preg_match( "/^([0-9]{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])(?:\s|T)(?:[0-1][0-9]|2[1-3]):[0-5][0-9]:[0-5][0-9]/", $post_date, $matches );
-	}
+	preg_match( "/^([0-9]{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])/", $post_date, $matches );
 
 	if ( empty( $matches ) || ! is_array( $matches ) || count( $matches ) < 4 ) {
 		return false;

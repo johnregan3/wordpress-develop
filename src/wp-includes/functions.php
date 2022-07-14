@@ -7058,6 +7058,11 @@ function wp_is_stream( $path ) {
  * @return bool True if valid date, false if not valid date.
  */
 function wp_checkdate( $month, $day, $year, $source_date ) {
+
+	if ( ! is_numeric( $month ) || ! is_numeric( $day ) || ! is_numeric( $year ) ) {
+		return false;
+	}
+
 	/**
 	 * Filters whether the given date is valid for the Gregorian calendar.
 	 *
