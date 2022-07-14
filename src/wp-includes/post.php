@@ -4912,13 +4912,13 @@ function wp_resolve_post_date( $post_date = '', $post_date_gmt = '' ) {
 		}
 	}
 
-	preg_match( "/^([0-9]{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])/", $post_date, $matches );
+	preg_match( "/^(?P<year>[0-9]{4})-(?P<month>0[1-9]|1[0-2])-(?P<day>0[1-9]|[1-2][0-9]|3[0-1])/", $post_date, $matches );
 
 	if ( empty( $matches ) || ! is_array( $matches ) || count( $matches ) < 4 ) {
 		return false;
 	}
 
-	$valid_date = wp_checkdate( $matches[2], $matches[3], $matches[1], $post_date );
+	$valid_date = wp_checkdate( $matches['month'], $matches['day'], $matches['year'], $post_date );
 
 	if ( ! $valid_date ) {
 		return false;
