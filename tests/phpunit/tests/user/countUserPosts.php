@@ -89,4 +89,51 @@ class Tests_User_CountUserPosts extends WP_UnitTestCase {
 	public function test_count_user_posts_should_ignore_non_existent_post_types() {
 		$this->assertEquals( 4, count_user_posts( self::$user_id, array( 'foo', 'post' ) ) );
 	}
+
+	/**
+	 * Test the count_user_posts cache.
+	 *
+	 * @ticket 39242
+	 *
+	 * @dataProvider data_count_user_posts_cache
+	 *
+	 * Primarily, this tests that the cache is created when count_user_posts() is called.
+	 * Additionally, this tests using both a single post type string and an array of post types as a parameter.
+	 *
+	 * This ticket adds a cache key string to the function so we check that it is generated as exptected.
+	 *
+	 * @param string|array $post_type       Used to test the first param in count_user_posts().
+	 * @param string       $cache_key_lable Provides the expected cache key.
+	 */
+	public function test_count_user_posts_cache( $post_type, $cache_key_label) {
+		// Validate the cache is empty.
+		$cache = wp_cache_get( 'count_user_' . $cache_key_label . '_' . self::$user_id, 'user_posts_count' );
+		$this->assertFalse( $cache );
+
+		// Call the function.
+		$count = count_user_posts( self::$user_id, $post_type );
+
+		// Validate the cache is populated.
+		$cache = wp_cache_get( 'count_user_' . $cache_key_label . '_' . self::$user_id, 'user_posts_count' );
+		$this->assertEquals( $count, $cache );
+	}
+
+	/**
+	 * @ticket 39242
+	 */
+	public function data_count_user_posts_cache() {
+		return array (
+			array(
+				'post',
+				'post'
+			),
+			array(
+				array(
+					'post',
+					'wptests_pt',
+				),
+				'post_wptests_pt',
+			),
+		);
+	}
 }

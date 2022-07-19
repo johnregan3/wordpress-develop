@@ -556,8 +556,11 @@ function count_user_posts( $userid, $post_type = 'post', $public_only = false ) 
 
 	$where = get_posts_by_author_sql( $post_type, true, $userid, $public_only );
 
-	$count = $wpdb->get_var( "SELECT COUNT(*) FROM $wpdb->posts $where" );
-	$cache_key = "count_user_{$post_type}_{$userid}";
+	$post_type_label = $post_type;
+	if ( is_array( $post_type ) ) {
+		$post_type_label = implode( '_', $post_type );
+	}
+	$cache_key = "count_user_{$post_type_label}_{$userid}";
 
 	if ( $public_only ) {
 		$cache_group = 'user_posts_count_public';
@@ -571,6 +574,7 @@ function count_user_posts( $userid, $post_type = 'post', $public_only = false ) 
 		$count = $wpdb->get_var( "SELECT COUNT(*) FROM $wpdb->posts $where" );
 		wp_cache_add( $cache_key, $count, $cache_group );
 	}
+
 	/**
 	 * Filters the number of posts a user has written.
 	 *
