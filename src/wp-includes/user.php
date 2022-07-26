@@ -559,7 +559,12 @@ function count_user_posts( $userid, $post_type = 'post', $public_only = false ) 
 	$post_type_label = $post_type;
 	if ( is_array( $post_type ) ) {
 		$post_type_label = implode( '_', $post_type );
+
+		// Trim this string if it is too long for a cache key, taking note of characters added later.
+		// @todo jr3 change length.
+		$post_type_label = substr( $post_type_label, 0, 56 );
 	}
+
 	$cache_key = "count_user_{$post_type_label}_{$userid}";
 
 	if ( $public_only ) {
@@ -4957,4 +4962,14 @@ function wp_is_application_passwords_available_for_user( $user ) {
 	 * @param WP_User $user      The user to check.
 	 */
 	return apply_filters( 'wp_is_application_passwords_available_for_user', true, $user );
+}
+
+/**
+ * Helper function to clear the cache for User post count.
+ *
+ * @since 6.1.0
+ * @access private
+ */
+function __clear_count_user_posts_cache() { // phpcs:ignore WordPress.NamingConventions.ValidFunctionName.FunctionDoubleUnderscore,PHPCompatibility.FunctionNameRestrictions.ReservedFunctionNames.FunctionDoubleUnderscore
+	delete_transient( 'is_multi_author' );
 }
