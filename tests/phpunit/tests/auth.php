@@ -414,6 +414,96 @@ class Tests_Auth extends WP_UnitTestCase {
 	}
 
 	/**
+	 * @ticket 36476
+	 */
+	public function test_wp_authenticate_username_password() {
+		$user_login = 'testuser';
+		$user_pass  = 'password';
+
+		$id = $this->factory()->user->create( array(
+			'user_email' => 'test@example.com',
+			'user_login' => $user_login,
+			'user_pass'  => $user_pass,
+		) );
+		$user = get_user_by( 'id', $id );
+
+		// Pass in a WP_User object.
+		$result = wp_authenticate_username_password( $user, '', '' );
+		$this->assertInstanceOf( 'WP_User', $result );
+
+		// No WP_User, but does have login and password.
+		$result = wp_authenticate_username_password( null, $user_login, $user_pass );
+		$this->assertInstanceOf( 'WP_User', $result );
+
+		// Non-existent login.
+		$result = wp_authenticate_username_password( null, '', $user_pass );
+		$this->assertInstanceOf( 'WP_Error', $result );
+
+		// Wrong password.
+		$result = wp_authenticate_username_password( null, $user_login, '' );
+		$this->assertInstanceOf( 'WP_Error', $result );
+	}
+
+	/**
+	 * @ticket 36476
+	 */
+	public function test_wp_authenticate_email_password() {
+		$user_email = 'example@test.com';
+		$user_pass  = 'password';
+
+		$id = $this->factory()->user->create( array(
+			'user_login' => 'testuser',
+			'user_email' => $user_email,
+			'user_pass'  => $user_pass,
+		) );
+		$user = get_user_by( 'id', $id );
+
+		// Pass in a WP_User object.
+		$result = wp_authenticate_email_password( $user, '', '' );
+		$this->assertInstanceOf( 'WP_User', $result );
+
+		// No WP_User, but does have login and password.
+		$result = wp_authenticate_email_password( null, $user_email, $user_pass );
+		$this->assertInstanceOf( 'WP_User', $result );
+
+		// Non-existent email.
+		$result = wp_authenticate_email_password( null, 'empty@test.com', $user_pass );
+		$this->assertInstanceOf( 'WP_Error', $result );
+
+		// Wrong password.
+		$result = wp_authenticate_email_password( null, $user_email, '' );
+		$this->assertInstanceOf( 'WP_Error', $result );
+	}
+
+	/**
+	 * @ticket 36476
+	 */
+	public function test_wp_authenticate_cookie_with_wp_user_object() {
+		$user   = get_user_by( 'id', self::$user_id );
+		$result = wp_authenticate_cookie( $user, null, null );
+		$this->assertSame( self::$user_id, $result->ID );
+	}
+
+	/**
+	 * @ticket 36476
+	 */
+	public function test_wp_authenticate_cookie_with_null_params() {
+		$result = wp_authenticate_cookie( null, null, null );
+		$this->assertNull( $result );
+	}
+
+	/**
+	 * @ticket 36476
+	 */
+	public function test_wp_authenticate_cookie_with_invalid_cookie() {
+		$_COOKIE[ AUTH_COOKIE ]        = 'invalid_cookie';
+		$_COOKIE[ SECURE_AUTH_COOKIE ] = 'secure_invalid_cookie';
+
+		$result = wp_authenticate_cookie( null, null, null );
+		$this->assertInstanceOf( 'WP_Error', $result );
+	}
+
+	/**
 	 * @ticket 38744
 	 */
 	public function test_wp_signon_using_email_with_an_apostrophe() {
