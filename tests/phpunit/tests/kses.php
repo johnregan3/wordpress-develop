@@ -1155,6 +1155,16 @@ EOF;
 				'padding: var(--wp-var1) var(--wp-var2)',
 				'padding: var(--wp-var1) var(--wp-var2)',
 			),
+			// Allow var() with fallback (commas).
+			array(
+				'padding: var(--wp-var1, 10px)',
+				'padding: var(--wp-var1, 10px)',
+			),
+			// Allow var() with fallback var().
+			array(
+				'background-color: var(--wp-var, var(--wp-var-fallback, pink))',
+				'background-color: var(--wp-var, var(--wp-var-fallback, pink))',
+			),
 			// Allow calc() with var().
 			array(
 				'margin-top: calc(var(--wp-var1) * 3 + 2em)',
