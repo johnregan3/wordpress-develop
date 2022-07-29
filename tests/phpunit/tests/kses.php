@@ -935,6 +935,7 @@ EOF;
 	 * @ticket 37248
 	 * @ticket 42729
 	 * @ticket 48376
+	 * @ticket 55966
 	 * @dataProvider data_test_safecss_filter_attr
 	 *
 	 * @param string $css      A string of CSS rules.
@@ -1301,7 +1302,6 @@ EOF;
 	 * @ticket 45067
 	 * @ticket 46197
 	 * @ticket 46498
-	 * @ticket 55966
 	 *
 	 * @param $input string The style attribute saved in the editor.
 	 * @param $expected string The sanitized style attribute.
