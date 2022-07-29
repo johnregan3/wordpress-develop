@@ -5,6 +5,11 @@
  * @group auth
  */
 class Tests_Auth extends WP_UnitTestCase {
+	// Class User values assigned to constants.
+	const USER_EMAIL = 'test@password.com';
+	const USER_LOGIN = 'password-user';
+	const USER_PASS  = 'password';
+
 	protected $user;
 
 	/**
@@ -22,7 +27,9 @@ class Tests_Auth extends WP_UnitTestCase {
 	public static function wpSetUpBeforeClass( WP_UnitTest_Factory $factory ) {
 		self::$_user = $factory->user->create_and_get(
 			array(
-				'user_login' => 'password-tests',
+				'user_login' => self::USER_LOGIN,
+				'user_email' => self::USER_EMAIL,
+				'user_pass'  => self::USER_PASS,
 			)
 		);
 
@@ -416,62 +423,96 @@ class Tests_Auth extends WP_UnitTestCase {
 	/**
 	 * @ticket 36476
 	 */
-	public function test_wp_authenticate_username_password() {
-		$user_login = 'testuser';
-		$user_pass  = 'password';
+	public function test_wp_authenticate_username_password_with_wp_user_object() {
+		$result = wp_authenticate_username_password( self::$_user, '', '' );
+		$this->assertSame( $result->ID, self::$user_id );
+	}
 
-		$id = $this->factory()->user->create( array(
-			'user_email' => 'test@example.com',
-			'user_login' => $user_login,
-			'user_pass'  => $user_pass,
-		) );
-		$user = get_user_by( 'id', $id );
+	/**
+	 * @ticket 36476
+	 */
+	public function test_wp_authenticate_username_password_with_login_and_password() {
+		$result = wp_authenticate_username_password( null, self::USER_LOGIN, self::USER_PASS );
+		$this->assertSame( self::$user_id, $result->ID );
+	}
 
-		// Pass in a WP_User object.
-		$result = wp_authenticate_username_password( $user, '', '' );
-		$this->assertInstanceOf( 'WP_User', $result );
-
-		// No WP_User, but does have login and password.
-		$result = wp_authenticate_username_password( null, $user_login, $user_pass );
-		$this->assertInstanceOf( 'WP_User', $result );
-
-		// Non-existent login.
-		$result = wp_authenticate_username_password( null, '', $user_pass );
-		$this->assertInstanceOf( 'WP_Error', $result );
-
-		// Wrong password.
-		$result = wp_authenticate_username_password( null, $user_login, '' );
+	/**
+	 * @ticket 36476
+	 */
+	public function test_wp_authenticate_username_password_with_null_password() {
+		$result = wp_authenticate_username_password( null, self::USER_LOGIN, null );
 		$this->assertInstanceOf( 'WP_Error', $result );
 	}
 
 	/**
 	 * @ticket 36476
 	 */
-	public function test_wp_authenticate_email_password() {
-		$user_email = 'example@test.com';
-		$user_pass  = 'password';
-
-		$id = $this->factory()->user->create( array(
-			'user_login' => 'testuser',
-			'user_email' => $user_email,
-			'user_pass'  => $user_pass,
-		) );
-		$user = get_user_by( 'id', $id );
-
-		// Pass in a WP_User object.
-		$result = wp_authenticate_email_password( $user, '', '' );
-		$this->assertInstanceOf( 'WP_User', $result );
-
-		// No WP_User, but does have login and password.
-		$result = wp_authenticate_email_password( null, $user_email, $user_pass );
-		$this->assertInstanceOf( 'WP_User', $result );
-
-		// Non-existent email.
-		$result = wp_authenticate_email_password( null, 'empty@test.com', $user_pass );
+	public function test_wp_authenticate_username_password_with_null_login() {
+		$result = wp_authenticate_username_password( null, null, self::USER_PASS );
 		$this->assertInstanceOf( 'WP_Error', $result );
+	}
 
-		// Wrong password.
-		$result = wp_authenticate_email_password( null, $user_email, '' );
+	/**
+	 * @ticket 36476
+	 */
+	public function test_wp_authenticate_username_password_with_invalid_login() {
+		$result = wp_authenticate_username_password( null, 'invalidlogin', self::USER_PASS );
+		$this->assertInstanceOf( 'WP_Error', $result );
+	}
+
+	/**
+	 * @ticket 36476
+	 */
+	public function test_wp_authenticate_username_password_with_invalid_password() {
+		$result = wp_authenticate_username_password( null, self::USER_LOGIN, 'invalidpassword' );
+		$this->assertInstanceOf( 'WP_Error', $result );
+	}
+
+	/**
+	 * @ticket 36476
+	 */
+	public function test_wp_authenticate_email_password_with_wp_user_object() {
+		$result = wp_authenticate_email_password( self::$_user, '', '' );
+		$this->assertSame( self::$user_id, $result->ID );
+	}
+
+	/**
+	 * @ticket 36476
+	 */
+	public function test_wp_authenticate_email_password_with_login_and_password() {
+		$result = wp_authenticate_email_password( null, self::USER_EMAIL, self::USER_PASS );
+		$this->assertSame( self::$user_id, $result->ID );
+	}
+
+	/**
+	 * @ticket 36476
+	 */
+	public function test_wp_authenticate_email_password_with_null_password() {
+		$result = wp_authenticate_email_password( null, self::USER_EMAIL, null );
+		$this->assertInstanceOf( 'WP_Error', $result );
+	}
+
+	/**
+	 * @ticket 36476
+	 */
+	public function test_wp_authenticate_email_password_with_null_email() {
+		$result = wp_authenticate_email_password( null, null, self::USER_PASS );
+		$this->assertInstanceOf( 'WP_Error', $result );
+	}
+
+	/**
+	 * @ticket 36476
+	 */
+	public function test_wp_authenticate_email_password_with_invalid_email() {
+		$result = wp_authenticate_email_password( null, 'invalid@example.com', self::USER_PASS );
+		$this->assertInstanceOf( 'WP_Error', $result );
+	}
+
+	/**
+	 * @ticket 36476
+	 */
+	public function test_wp_authenticate_email_password_with_invalid_password() {
+		$result = wp_authenticate_email_password( null, self::USER_EMAIL, 'invalidpassword' );
 		$this->assertInstanceOf( 'WP_Error', $result );
 	}
 
@@ -479,8 +520,7 @@ class Tests_Auth extends WP_UnitTestCase {
 	 * @ticket 36476
 	 */
 	public function test_wp_authenticate_cookie_with_wp_user_object() {
-		$user   = get_user_by( 'id', self::$user_id );
-		$result = wp_authenticate_cookie( $user, null, null );
+		$result = wp_authenticate_cookie( $this->user, null, null );
 		$this->assertSame( self::$user_id, $result->ID );
 	}
 
