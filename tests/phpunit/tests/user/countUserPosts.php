@@ -136,4 +136,23 @@ class Tests_User_CountUserPosts extends WP_UnitTestCase {
 			),
 		);
 	}
+
+	/**
+	 * Test the count_user_posts cache gets updated.
+	 *
+	 * @ticket 39242
+	 */
+	public function test_count_user_posts_cache_updated() {
+		$start = count_user_posts( self::$user_id, 'post' );
+
+		$this->factory->post->create(
+			array(
+				'post_author' => self::$user_id,
+				'post_type'   => 'post',
+			)
+		);
+
+		$result = count_user_posts( self::$user_id, 'post' );
+		$this->assertEquals( $result, $start + 1 );
+	}
 }
