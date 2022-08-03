@@ -631,7 +631,7 @@ function _wp_make_subsizes( $new_sizes, $file, $image_meta, $attachment_id, $mim
 				if ( ! isset( $image_meta['sizes'][ $created_size_name ]['sources'] ) ) {
 					$image_meta['sizes'][ $created_size_name ]['sources'] = array();
 				}
-				$image_meta['sizes'][ $created_size_name ]['sources'][ $mime_type ] = _wp_get_sources_from_meta( $new_size_meta );
+				$image_meta['sizes'][ $created_size_name ]['sources'][ $mime_type ] = _wp_get_sources_from_meta( $created_size_meta );
 			}
 			wp_update_attachment_metadata( $attachment_id, $image_meta );
 		}
@@ -738,7 +738,7 @@ function _wp_make_additional_mime_types( $new_mime_types, $file, $image_meta, $a
  * @return bool True if the image belongs to the attachment, false otherwise.
  */
 function _wp_image_belongs_to_attachment( $filename, $attachment_id ) {
-	$meta_data = wp_get_attachment_metadata( $attachment_id );
+	$image_meta = wp_get_attachment_metadata( $attachment_id );
 
 	if ( ! isset( $image_meta['sizes'] ) ) {
 		return false;
