@@ -750,6 +750,7 @@ class WP_Test_REST_Posts_Controller extends WP_Test_REST_Post_Type_Controller_Te
 				'post_content' => 'Rye Bread is a type of bread',
 			)
 		);
+
 		$this->factory->post->create(
 			array(
 				'post_title'  => 'Types of Bread',
