@@ -738,6 +738,39 @@ class WP_Test_REST_Posts_Controller extends WP_Test_REST_Post_Type_Controller_Te
 		}
 	}
 
+	/**
+	 * @ticket 56350
+	 */
+	public function test_get_items_exact_search() {
+
+		$this->factory->post->create(
+			array(
+				'post_title'  => 'Rye Bread',
+				'post_status' => 'publish',
+				'post_content' => 'Rye Bread is a type of bread',
+			)
+		);
+		$this->factory->post->create(
+			array(
+				'post_title'  => 'Types of Bread',
+				'post_status' => 'publish',
+				'post_content' => 'White and Rye are types of Bread',
+			)
+		);
+
+		$request = new WP_REST_Request( 'GET', '/wp/v2/posts' );
+		$request->set_param( 'search', 'rye bread' );
+
+		$response = rest_get_server()->dispatch( $request );
+		$data     = $response->get_data();
+		$this->assertCount( 2, $data );
+
+		$request->set_param( 'exact_search', true );
+		$response = rest_get_server()->dispatch( $request );
+		$data     = $response->get_data();
+		$this->assertCount( 0, $data );
+	}
+
 	public function test_get_items_order_and_orderby() {
 		$this->factory->post->create(
 			array(
