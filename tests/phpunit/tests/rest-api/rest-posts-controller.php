@@ -745,28 +745,36 @@ class WP_Test_REST_Posts_Controller extends WP_Test_REST_Post_Type_Controller_Te
 
 		$this->factory->post->create(
 			array(
-				'post_title'  => 'Rye Bread',
-				'post_status' => 'publish',
-				'post_content' => 'Rye Bread is a type of bread',
+				'post_title'   => 'Rye',
+				'post_content' => 'This is a post about Rye Bread',
+				'post_status'  => 'publish',
 			)
 		);
 
 		$this->factory->post->create(
 			array(
-				'post_title'  => 'Types of Bread',
-				'post_status' => 'publish',
-				'post_content' => 'White and Rye are types of Bread',
+				'post_title'   => 'Types of Bread',
+				'post_content' => 'Types of bread are White and Rye Bread',
+				'post_status'  => 'publish',
 			)
 		);
 
 		$request = new WP_REST_Request( 'GET', '/wp/v2/posts' );
-		$request->set_param( 'search', 'rye bread' );
 
+		// General search.
+		$request->set_param( 'search', 'Rye' );
 		$response = rest_get_server()->dispatch( $request );
 		$data     = $response->get_data();
 		$this->assertCount( 2, $data );
 
+		// Exact search using same search param.
 		$request->set_param( 'exact_search', true );
+		$response = rest_get_server()->dispatch( $request );
+		$data     = $response->get_data();
+		$this->assertCount( 1, $data );
+
+		// Note that "exact_search" is still true.
+		$request->set_param( 'search', 'Rye Bread' );
 		$response = rest_get_server()->dispatch( $request );
 		$data     = $response->get_data();
 		$this->assertCount( 0, $data );
