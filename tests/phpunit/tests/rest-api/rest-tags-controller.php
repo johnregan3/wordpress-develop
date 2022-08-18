@@ -54,7 +54,7 @@ class WP_Test_REST_Tags_Controller extends WP_Test_REST_Controller_Testcase {
 
 		// Set up tags for pagination tests.
 		for ( $i = 0; $i < self::$total_tags; $i++ ) {
-			$tag_ids[] = $factory->tag->create(
+			self::$tag_ids[] = $factory->tag->create(
 				array(
 					'name' => "Tag {$i}",
 				)
@@ -400,36 +400,30 @@ class WP_Test_REST_Tags_Controller extends WP_Test_REST_Controller_Testcase {
 	}
 
 	public function test_get_terms_post_args_paging() {
-		$post_id = $this->factory->post->create();
+		// Numbers based on self::$total_tags being 30.
+		$per_page          = 7;
+		$last_page         = 5;
+		$tags_on_last_page = 2;
 
+		// Create post and assign all Tags to it.
+		$post_id = $this->factory->post->create();
 		wp_set_object_terms( $post_id, self::$tag_ids, 'post_tag' );
 
 		$request = new WP_REST_Request( 'GET', '/wp/v2/tags' );
 		$request->set_param( 'post', $post_id );
+		$request->set_param( 'per_page', $per_page );
+
+		// Get first page of results.
 		$request->set_param( 'page', 1 );
-		$request->set_param( 'per_page', 15 );
-		$request->set_param( 'orderby', 'id' );
-		$response = rest_get_server()->dispatch( $request );
-		$tags     = $response->get_data();
+		$response   = rest_get_server()->dispatch( $request );
+		$found_tags = $response->get_data();
+		$this->assertSame( $per_page, count( $found_tags ) );
 
-		$i = 0;
-		foreach ( $tags as $tag ) {
-			$this->assertSame( $tag['name'], "Tag {$i}" );
-			$i++;
-		}
-
-		$request = new WP_REST_Request( 'GET', '/wp/v2/tags' );
-		$request->set_param( 'post', $post_id );
-		$request->set_param( 'page', 2 );
-		$request->set_param( 'per_page', 15 );
-		$request->set_param( 'orderby', 'id' );
-		$response = rest_get_server()->dispatch( $request );
-		$tags     = $response->get_data();
-
-		foreach ( $tags as $tag ) {
-			$this->assertSame( $tag['name'], "Tag {$i}" );
-			$i++;
-		}
+		// Get last page of results (by modifying the last Request).
+		$request->set_param( 'page', $last_page );
+		$response   = rest_get_server()->dispatch( $request );
+		$found_tags = $response->get_data();
+		$this->assertSame( $tags_on_last_page, count( $found_tags ) );
 	}
 
 	public function test_get_items_post_empty() {
