@@ -933,6 +933,7 @@ function wp_kses_version() {
  * @global array[]|string $pass_allowed_html      An array of allowed HTML elements and attributes,
  *                                                or a context name such as 'post'.
  * @global string[]       $pass_allowed_protocols Array of allowed URL protocols.
+ * @global bool           $pass_allowed_comments  Whether or not the HTML comments are allowed.
  *
  * @param string         $string            Content to filter.
  * @param array[]|string $allowed_html      An array of allowed HTML elements and attributes,
@@ -943,7 +944,7 @@ function wp_kses_version() {
  * @return string Content with fixed HTML tags
  */
 function wp_kses_split( $string, $allowed_html, $allowed_protocols, $allowed_comments ) {
-	global $pass_allowed_html, $pass_allowed_protocols;
+	global $pass_allowed_html, $pass_allowed_protocols, $pass_allowed_comments;
 
 	$pass_allowed_html      = $allowed_html;
 	$pass_allowed_protocols = $allowed_protocols;
