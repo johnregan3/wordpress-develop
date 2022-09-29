@@ -2946,6 +2946,41 @@ class Tests_Theme_wpThemeJson extends WP_UnitTestCase {
 	}
 
 	/**
+	 * @ticket 56611
+	 */
+	function test_export_data_sets_ause_root_padding_aware_alignments() {
+		$theme = new WP_Theme_JSON(
+			array(
+				'version'  => 2,
+				'settings' => array(
+					'useRootPaddingAwareAlignments' => true,
+					'blocks'          => array(
+						'core/paragraph' => array(
+							'useRootPaddingAwareAlignments' => true,
+						),
+					),
+				),
+			)
+		);
+
+		$actual   = $theme->get_data();
+		$expected = array(
+			'version'  => 2,
+			'settings' => array(
+				'useRootPaddingAwareAlignments' => true,
+				'blocks'          => array(
+					'core/paragraph' => array(
+						'useRootPaddingAwareAlignments' => true,
+					),
+				),
+			),
+		);
+
+		$this->assertEqualSetsWithIndex( $expected, $actual );
+	}
+
+
+	/**
 	 * @ticket 56467
 	 */
 	public function test_get_element_class_name_button() {
@@ -3873,5 +3908,33 @@ class Tests_Theme_wpThemeJson extends WP_UnitTestCase {
 				'expected_output' => null,
 			),
 		);
+	}
+
+	/**
+	 * @ticket 56611
+	 */
+	function test_get_styles_for_element_with_shadow() {
+		$theme_json = new WP_Theme_JSON(
+			array(
+				'version'  => 2,
+				'styles'=> array(
+					'elements' => array(
+						'button' => array(
+							'shadow' => '10px 10px 5px 0px rgba(0,0,0,0.66)',
+						),
+					),
+				),
+			)
+		);
+
+		$metadata = array(
+			'path'     => array( 'styles', 'elements', 'button' ),
+			'selector' => 'button',
+		);
+
+		$expected    = 'body { margin: 0; }.wp-site-blocks > .alignleft { float: left; margin-right: 2em; }.wp-site-blocks > .alignright { float: right; margin-left: 2em; }.wp-site-blocks > .aligncenter { justify-content: center; margin-left: auto; margin-right: auto; }button{box-shadow: 10px 10px 5px 0px rgba(0,0,0,0.66);}';
+		$root_rules  = $theme_json->get_root_layout_rules( WP_Theme_JSON::ROOT_BLOCK_SELECTOR, $metadata );
+		$style_rules = $theme_json->get_styles_for_block( $metadata );
+		$this->assertSame( $expected, $root_rules . $style_rules );
 	}
 }
