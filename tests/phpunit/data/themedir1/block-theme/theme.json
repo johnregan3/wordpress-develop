@@ -54,6 +54,42 @@
 			}
 		}
 	},
+	"styles" : {
+		"blocks" :{
+			"core/post-featured-image": {
+				"shadow": "10px 10px 5px 0px rgba(0,0,0,0.66)"
+			}
+		},
+		"elements": {
+			"button": {
+				"shadow": "10px 10px 5px 0px rgba(0,0,0,0.66)"
+			},
+			"link": {
+				"typography": {
+					"textDecoration": "none"
+				},
+				"border": {
+					"bottom": {
+						"width": "2px",
+						"color": "currentColor",
+						"style": "solid"
+					}
+				},
+				":hover": {
+					"typography": {
+						"textDecoration": "none"
+					},
+					"border": {
+						"bottom": {
+							"width": "2px",
+							"color": "#000",
+							"style": "dotted"
+						}
+					}
+				}
+			}
+		}
+	},
 	"customTemplates": [
 		{
 			"name": "page-home",
