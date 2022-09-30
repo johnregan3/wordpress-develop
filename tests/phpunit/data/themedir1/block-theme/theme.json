@@ -45,7 +45,8 @@
 		},
 		"spacing": {
 			"units": ["rem"],
-			"customPadding": true
+			"customPadding": true,
+			"blockGap": true
 		},
 		"blocks": {
 			"core/paragraph": {
