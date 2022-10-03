@@ -3934,4 +3934,3 @@ class Tests_Theme_wpThemeJson extends WP_UnitTestCase {
 		);
 	}
 }
-
