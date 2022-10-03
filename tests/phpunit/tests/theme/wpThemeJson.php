@@ -2972,7 +2972,7 @@ class Tests_Theme_wpThemeJson extends WP_UnitTestCase {
 	/**
 	 * @ticket 56611
 	 */
-	function test_export_data_sets_ause_root_padding_aware_alignments() {
+	function test_export_data_sets_use_root_padding_aware_alignments() {
 		$theme = new WP_Theme_JSON(
 			array(
 				'version'  => 2,

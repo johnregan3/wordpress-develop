@@ -76,6 +76,7 @@ class Tests_Theme_wpThemeJsonResolver extends WP_UnitTestCase {
 	/**
 	 * @ticket 52991
 	 * @ticket 54336
+	 * @ticket 56611
 	 */
 	public function test_translations_are_applied() {
 		add_filter( 'locale', array( $this, 'filter_set_locale_to_polish' ) );
@@ -254,6 +255,7 @@ class Tests_Theme_wpThemeJsonResolver extends WP_UnitTestCase {
 
 	/**
 	 * @ticket 54336
+	 * @ticket 56611
 	 */
 	function test_merges_child_theme_json_into_parent_theme_json() {
 		switch_theme( 'block-theme-child' );
